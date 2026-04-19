@@ -1,0 +1,104 @@
+.luxury-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.preloader-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.preloader-svg {
+  width: 70px;
+  height: 70px;
+  stroke: var(--gold);
+  stroke-width: 1.5;
+  fill: none;
+  margin-bottom: 24px;
+}
+.preloader-circle.outer {
+  stroke-dasharray: 290;
+  stroke-dashoffset: 290;
+  animation: drawCircle 1.8s ease-in-out forwards;
+}
+.preloader-circle.inner {
+  stroke-dasharray: 215;
+  stroke-dashoffset: 215;
+  animation: drawCircle 1.8s ease-in-out 0.2s forwards;
+  opacity: 0.5;
+}
+.preloader-k {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawCircle 1.5s ease-out 0.4s forwards;
+  stroke-width: 2.5;
+}
+
+.preloader-text-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.preloader-text {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0;
+  animation: fadeUpIn 0.8s ease forwards 0.8s;
+}
+.preloader-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+  transform: skewX(-20deg);
+  animation: shimmerSweep 2.5s ease 1.2s infinite;
+}
+.preloader-subtext {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  opacity: 0;
+  animation: fadeUpIn 0.8s ease forwards 1s;
+}
+
+@keyframes drawCircle {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmerSweep {
+  to { left: 200%; }
+}
+
+.preloader-dynamic-logo-wrapper {
+  animation: logoPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.preloader-dynamic-img {
+  max-width: 160px;
+  max-height: 80px;
+  object-fit: contain;
+}
+.preloader-dynamic-text {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  margin: 0;
+}
+@keyframes logoPop {
+  0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}

@@ -1,0 +1,30 @@
+{
+  "logoMain": "Saadat Shawl House",
+  "logoSub": "Authentic Kashmiri Shawls",
+  "logoUrl": "https://res.cloudinary.com/dzgazj0dk/image/upload/v1775387312/kashur-mart/branding/c6yt04jewdseynxslxhs.png",
+  "phoneNumber": "(+91) 94190 12345",
+  "email": "support@kashurmart.com",
+  "address": "Srinagar, Jammu & Kashmir, India",
+  "aboutText": "Handcrafted shawls from the valleys of Kashmir. Each piece tells a story of tradition, artistry & warmth passed through generations.",
+  "announcementText": "Free shipping & 30-day returns — Authentic Crafts",
+  "banners": [
+    {
+      "_id": "new_1775387261618",
+      "title": "New Banner TitleTest Banner 1",
+      "subtitle": "New SubtitleSub 1",
+      "description": "Banner description goes here.Desc 1",
+      "image": "https://placehold.co/1200x600/F5F5F5/9E9E9E?text=New+Banner",
+      "btnText": "Shop Now",
+      "btnLink": "/shop"
+    },
+    {
+      "_id": "new_1775387297759",
+      "title": "New Banner Title",
+      "subtitle": "New Subtitle",
+      "description": "Banner description goes here.",
+      "image": "https://placehold.co/1200x600/F5F5F5/9E9E9E?text=New+Banner",
+      "btnText": "Shop Now",
+      "btnLink": "/shop"
+    }
+  ]
+}

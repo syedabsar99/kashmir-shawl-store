@@ -1,0 +1,16 @@
+# Node Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment Variables (Extremely Sensitive, Never Push!)
+.env
+client/.env
+server/.env
+
+# Build Outputs
+client/dist/
+
+# OS and Editor
+.DS_Store
+.vscode/
