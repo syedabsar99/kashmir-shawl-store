@@ -9,8 +9,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
+import SkeletonProductCard from '../components/SkeletonProductCard';
 import Spinner from '../components/Spinner';
 import useSettingsStore from '../store/settingsStore';
+import { Helmet } from 'react-helmet-async';
+import useToast from '../hooks/useToast';
 
 const TRUST_ITEMS = [
   {
@@ -62,6 +65,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileView, setMobileView] = useState(window.innerWidth <= 992);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const handleResize = () => setMobileView(window.innerWidth <= 992);
@@ -81,6 +85,9 @@ export default function HomePage() {
     ]).then(([fRes, cRes]) => {
       setFeatured(fRes.data.products);
       setCategories(cRes.data.categories);
+    }).catch((error) => {
+      console.error('Error fetching homepage data:', error);
+      showToast('Failed to load store data. Please try refreshing.', 'error');
     }).finally(() => setLoading(false));
   }, [initialize]);
 
@@ -120,6 +127,12 @@ export default function HomePage() {
 
   return (
     <div style={{ opacity: isInitialized ? 1 : 0, transition: 'opacity 0.4s ease' }}>
+      <Helmet>
+        <title>Saadat Shawl House | Authentic Kashmiri Shawls</title>
+        <meta name="description" content="Discover authentic, handcrafted Kashmiri shawls. Premium Pashmina, Kani, and Woolen shawls woven by master artisans in the Kashmir Valley." />
+        <meta property="og:title" content="Saadat Shawl House | Authentic Kashmiri Shawls" />
+        <meta property="og:description" content="Discover authentic, handcrafted Kashmiri shawls. Premium Pashmina, Kani, and Woolen shawls woven by master artisans in the Kashmir Valley." />
+      </Helmet>
       {/* ─── HERO DESKTOP (hidden on mobile) ─── */}
       <section className="hero hero--desktop">
         {/* Left text panel */}
@@ -242,7 +255,14 @@ export default function HomePage() {
             <p>Discover the Best of Our Collection for Your Dream Home</p>
           </div>
 
-          {loading ? <div className="page-loading"><div className="spinner" /></div> : (
+          {loading ? (
+            <div className="product-grid">
+              <SkeletonProductCard />
+              <SkeletonProductCard />
+              <SkeletonProductCard />
+              <SkeletonProductCard />
+            </div>
+          ) : (
             featured.length > 0 ? (
               <div className="product-grid">
                 {featured.slice(0, 4).map(p => <ProductCard key={p._id} product={p} />)}
@@ -253,6 +273,46 @@ export default function HomePage() {
       </section>
 
 
+
+      {/* ─── HERITAGE SECTION ─── */}
+      <section className="section heritage-section">
+        <div className="container">
+          <div className="heritage-grid">
+            <div className="heritage-text">
+              <span className="eyebrow" style={{ color: 'var(--gold)', marginBottom: '16px', display: 'block' }}>Our Legacy</span>
+              <h2 style={{ color: 'var(--white)', marginBottom: '24px' }}>The Art of Kashmiri Weaving</h2>
+              <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '40px', fontSize: '16px', lineHeight: '1.8' }}>
+                For centuries, the master weavers of the Kashmir Valley have perfected the art of creating the world's most luxurious shawls. 
+                Using the finest Pashmina wool sourced from the high altitudes of the Himalayas, each piece is a testament to heritage, patience, and unparalleled craftsmanship.
+              </p>
+              <div className="heritage-stat-grid">
+                <div className="heritage-stat">
+                  <div className="heritage-stat__num">1952</div>
+                  <div className="heritage-stat__label">ESTABLISHED</div>
+                </div>
+                <div className="heritage-stat">
+                  <div className="heritage-stat__num">100%</div>
+                  <div className="heritage-stat__label">GI CERTIFIED</div>
+                </div>
+                <div className="heritage-stat">
+                  <div className="heritage-stat__num">50+</div>
+                  <div className="heritage-stat__label">MASTER ARTISANS</div>
+                </div>
+                <div className="heritage-stat">
+                  <div className="heritage-stat__num">∞</div>
+                  <div className="heritage-stat__label">TIMELESS ELEGANCE</div>
+                </div>
+              </div>
+              <div style={{ marginTop: '40px' }}>
+                <Link to="/about" className="btn btn-gold">Discover Our Story</Link>
+              </div>
+            </div>
+            <div className="heritage-image" style={{ borderRadius: '12px', overflow: 'hidden', height: '100%' }}>
+              <img src="https://images.unsplash.com/photo-1605810753066-5e58988a87fb?q=80&w=1000" alt="Kashmiri Artisan Weaving" style={{ width: '100%', height: '100%', minHeight: '500px', objectFit: 'cover' }} />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ─── TRUST STRIP (BOTTOM) ─── */}
       <div className="trust-strip theme-luxury-cashmere" style={{ borderTop: 'none' }}>

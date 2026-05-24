@@ -5,8 +5,23 @@ server/node_modules/
 
 # Environment Variables (Extremely Sensitive, Never Push!)
 .env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*
 client/.env
+client/.env.local
+client/.env.development
+client/.env.test
+client/.env.production
+client/.env.*
 server/.env
+server/.env.local
+server/.env.development
+server/.env.test
+server/.env.production
+server/.env.*
 
 # Build Outputs
 client/dist/
