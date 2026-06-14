@@ -136,27 +136,33 @@ router.post('/upload-image', protect, isAdmin, async (req, res) => {
   try {
     const { data } = req.body; // base64 data URI
     
-    // Extract format and raw base64 data
+    // Validate base64 format and extract type
     const matches = data.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) {
       return res.status(400).json({ message: 'Invalid image format or corrupted base64' });
     }
+
+    // Allowlist of accepted image types
+    const ALLOWED_IMAGE_TYPES = ['jpeg', 'jpg', 'png', 'webp', 'gif'];
+    const ext = matches[1].toLowerCase();
+    if (!ALLOWED_IMAGE_TYPES.includes(ext)) {
+      return res.status(400).json({ message: `File type '${ext}' is not allowed.` });
+    }
+
+    // Validate size (10MB max)
+    const rawBase64 = matches[2];
+    const estimatedSize = Math.ceil(rawBase64.length * 3 / 4);
+    if (estimatedSize > 10 * 1024 * 1024) {
+      return res.status(400).json({ message: 'Image exceeds maximum allowed size of 10MB' });
+    }
+
+    // Upload to Cloudinary (works on Vercel's read-only filesystem)
+    const result = await cloudinary.uploader.upload(data, {
+      folder: 'saadat-shawl/products',
+      resource_type: 'image'
+    });
     
-    const ext = matches[1];
-    const imageBuffer = Buffer.from(matches[2], 'base64');
-    const filename = `km_${Date.now()}_${Math.floor(Math.random() * 1000)}.${ext === 'jpeg' ? 'jpg' : ext}`;
-    
-    const fs = require('fs');
-    const path = require('path');
-    const uploadPath = path.join(__dirname, '../uploads', filename);
-    
-    // Ensure the array of bytes is written securely to local disk
-    fs.writeFileSync(uploadPath, imageBuffer);
-    
-    // Construct local URL string mapping directly to the DB
-    const url = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
-    
-    res.json({ url, publicId: filename });
+    res.json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

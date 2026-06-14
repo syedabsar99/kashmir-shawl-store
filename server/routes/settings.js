@@ -59,42 +59,56 @@ router.put('/', protect, isAdmin, async (req, res) => {
     let finalLogoUrl = otherData.logoUrl;
     let finalFaviconUrl = otherData.faviconUrl;
 
-    const fs = require('fs');
-    const path = require('path');
+    // Allowed image types (allowlist)
+    const ALLOWED_IMAGE_TYPES = ['jpeg', 'jpg', 'png', 'webp', 'gif', 'svg+xml'];
+    const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
-    // Helper to process base64
-    const processBase64 = (base64Data, prefix) => {
+    // Helper to upload base64 image to Cloudinary (works on Vercel's read-only FS)
+    const uploadBase64ToCloudinary = async (base64Data, folder) => {
       const matches = base64Data.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
       if (!matches || matches.length !== 3) return null;
-      const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
-      const imageBuffer = Buffer.from(matches[2], 'base64');
-      const filename = `${prefix}_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-      fs.writeFileSync(path.join(__dirname, '../uploads', filename), imageBuffer);
-      return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+
+      const ext = matches[1].toLowerCase();
+      if (!ALLOWED_IMAGE_TYPES.includes(ext)) {
+        throw new Error(`File type '${ext}' is not allowed. Allowed: ${ALLOWED_IMAGE_TYPES.join(', ')}`);
+      }
+
+      // Validate size
+      const rawBase64 = matches[2];
+      const estimatedSize = Math.ceil(rawBase64.length * 3 / 4);
+      if (estimatedSize > MAX_IMAGE_SIZE_BYTES) {
+        throw new Error('Image exceeds maximum allowed size of 10MB');
+      }
+
+      const result = await cloudinary.uploader.upload(base64Data, {
+        folder: `saadat-shawl/${folder}`,
+        resource_type: 'image'
+      });
+      return result.secure_url;
     };
 
     // Handle new Logo upload
     if (finalLogoUrl && finalLogoUrl.startsWith('data:image')) {
-      const localUrl = processBase64(finalLogoUrl, 'logo');
-      if (localUrl) finalLogoUrl = localUrl;
+      const cloudUrl = await uploadBase64ToCloudinary(finalLogoUrl, 'logos');
+      if (cloudUrl) finalLogoUrl = cloudUrl;
     }
 
     // Handle new Favicon upload
     if (finalFaviconUrl && finalFaviconUrl.startsWith('data:image')) {
-      const localUrl = processBase64(finalFaviconUrl, 'favicon');
-      if (localUrl) finalFaviconUrl = localUrl;
+      const cloudUrl = await uploadBase64ToCloudinary(finalFaviconUrl, 'favicons');
+      if (cloudUrl) finalFaviconUrl = cloudUrl;
     }
 
     // Handle banners uploads
     if (otherData.banners && Array.isArray(otherData.banners)) {
       for (const banner of otherData.banners) {
         if (banner.image && banner.image.startsWith('data:image')) {
-          const localUrl = processBase64(banner.image, 'banner');
-          if (localUrl) banner.image = localUrl;
+          const cloudUrl = await uploadBase64ToCloudinary(banner.image, 'banners');
+          if (cloudUrl) banner.image = cloudUrl;
         }
         if (banner.mobileImage && banner.mobileImage.startsWith('data:image')) {
-          const localUrl = processBase64(banner.mobileImage, 'banner_m');
-          if (localUrl) banner.mobileImage = localUrl;
+          const cloudUrl = await uploadBase64ToCloudinary(banner.mobileImage, 'banners');
+          if (cloudUrl) banner.mobileImage = cloudUrl;
         }
       }
     }
