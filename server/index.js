@@ -22,14 +22,43 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting disabled by user request (Infinite max)
-// const limiter = rateLimit({ ... });
-// app.use('/api/', limiter);
+// Rate Limiting — tiered by sensitivity
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,                   // 100 requests per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many requests, please try again after 15 minutes.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,                    // only 10 login/register attempts per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many auth attempts, please try again after 15 minutes.' }
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20,                    // 20 image uploads per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Upload limit reached. Please try again in an hour.' }
+});
+
+app.use('/api/', generalLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/products/upload-image', uploadLimiter);
 
 // Routes
 if (process.env.MOCK_DB === 'true') {
   console.log('⚠️  RUNNING IN MOCK MODE (In-memory storage)');
   const mock = require('./mockStore');
+  const protect = require('./middleware/auth');
+  const isAdmin = require('./middleware/isAdmin');
   
   app.get('/api/categories', (req, res) => res.json({ categories: mock.categories }));
   app.post('/api/auth/login', (req, res) => {
@@ -43,7 +72,7 @@ if (process.env.MOCK_DB === 'true') {
     res.status(401).json({ message: 'Invalid mock credentials' });
   });
 
-  app.put('/api/auth/profile', (req, res) => {
+  app.put('/api/auth/profile', protect, (req, res) => {
     const updated = mock.updateMockUser(req.body);
     res.json({ user: updated, message: 'Profile updated in mock mode!' });
   });
@@ -70,15 +99,15 @@ if (process.env.MOCK_DB === 'true') {
     res.status(400).json({ message: 'Invalid or expired token' });
   });
 
-  app.post('/api/categories', (req, res) => {
+  app.post('/api/categories', protect, isAdmin, (req, res) => {
     const cat = mock.addCategory(req.body);
     res.status(201).json({ category: cat });
   });
-  app.put('/api/categories/:id', (req, res) => {
+  app.put('/api/categories/:id', protect, isAdmin, (req, res) => {
     const cat = mock.updateCategory(req.params.id, req.body);
     res.json({ category: cat });
   });
-  app.delete('/api/categories/:id', (req, res) => {
+  app.delete('/api/categories/:id', protect, isAdmin, (req, res) => {
     mock.deleteCategory(req.params.id);
     res.json({ message: 'Category deleted' });
   });
@@ -98,38 +127,33 @@ if (process.env.MOCK_DB === 'true') {
     if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json({ product });
   });
-  app.post('/api/products/upload-image', (req, res) => {
+  app.post('/api/products/upload-image', protect, isAdmin, (req, res) => {
     res.json({ url: 'https://placehold.co/800x1000/3D2B1F/C4972A?text=Uploaded+Image', publicId: 'mock_id' });
   });
-  app.post('/api/products', (req, res) => {
+  app.post('/api/products', protect, isAdmin, (req, res) => {
     const prod = mock.addProduct(req.body);
     res.status(201).json({ product: prod });
   });
-  app.put('/api/products/:id', (req, res) => {
+  app.put('/api/products/:id', protect, isAdmin, (req, res) => {
     const prod = mock.updateProduct(req.params.id, req.body);
     res.json({ product: prod });
   });
-  app.delete('/api/products/:id', (req, res) => {
+  app.delete('/api/products/:id', protect, isAdmin, (req, res) => {
     mock.deleteProduct(req.params.id);
     res.json({ message: 'Product deleted' });
   });
 
-  app.get('/api/admin/stats', (req, res) => res.json({
-    revenue: 12500, totalOrders: mock.orders.length, totalProducts: mock.products.length, totalUsers: 1,
-    recentOrders: mock.orders.slice(-5).reverse()
-  }));
-
   // Shipping Zones
-  app.get('/api/admin/shipping-zones', (req, res) => res.json({ zones: mock.shippingZones }));
-  app.post('/api/admin/shipping-zones', (req, res) => {
+  app.get('/api/admin/shipping-zones', protect, isAdmin, (req, res) => res.json({ zones: mock.shippingZones }));
+  app.post('/api/admin/shipping-zones', protect, isAdmin, (req, res) => {
     const zone = mock.addShippingZone(req.body);
     res.status(201).json({ zone });
   });
-  app.put('/api/admin/shipping-zones/:id', (req, res) => {
+  app.put('/api/admin/shipping-zones/:id', protect, isAdmin, (req, res) => {
     const zone = mock.updateShippingZone(req.params.id, req.body);
     res.json({ zone });
   });
-  app.delete('/api/admin/shipping-zones/:id', (req, res) => {
+  app.delete('/api/admin/shipping-zones/:id', protect, isAdmin, (req, res) => {
     mock.deleteShippingZone(req.params.id);
     res.json({ message: 'Zone deleted' });
   });
@@ -143,7 +167,7 @@ if (process.env.MOCK_DB === 'true') {
     res.json(zone);
   });
 
-  app.post('/api/orders/create', (req, res) => {
+  app.post('/api/orders/create', protect, (req, res) => {
     const payload = { ...req.body };
     payload.totalAmount = (payload.itemsTotal || 0) + (payload.shippingCost || 0);
     const order = mock.addOrder(payload);
@@ -154,15 +178,15 @@ if (process.env.MOCK_DB === 'true') {
     });
   });
 
-  app.post('/api/orders/verify', (req, res) => res.json({ status: 'success' }));
+  app.post('/api/orders/verify', protect, (req, res) => res.json({ status: 'success' }));
   
-  app.get('/api/orders/mine', (req, res) => res.json({ orders: mock.orders }));
-  app.get('/api/orders/:id', (req, res) => {
+  app.get('/api/orders/mine', protect, (req, res) => res.json({ orders: mock.orders }));
+  app.get('/api/orders/:id', protect, (req, res) => {
     const order = mock.orders.find(o => o._id === req.params.id);
     res.json({ order });
   });
 
-  app.get('/api/admin/orders', (req, res) => {
+  app.get('/api/admin/orders', protect, isAdmin, (req, res) => {
     const { status, page = 1, limit = 20 } = req.query;
     let filtered = [...mock.orders].reverse();
     if (status) filtered = filtered.filter(o => o.status === status);
@@ -177,7 +201,7 @@ if (process.env.MOCK_DB === 'true') {
     });
   });
 
-  app.get('/api/admin/stats', (req, res) => {
+  app.get('/api/admin/stats', protect, isAdmin, (req, res) => {
     const revenue = mock.orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
     res.json({
       revenue,
@@ -188,24 +212,24 @@ if (process.env.MOCK_DB === 'true') {
     });
   });
 
-  app.put('/api/admin/orders/:id', (req, res) => {
+  app.put('/api/admin/orders/:id', protect, isAdmin, (req, res) => {
     const order = mock.updateOrder(req.params.id, req.body);
     if (!order) return res.status(404).json({ message: 'Order not found' });
     res.json({ order });
   });
 
   // Messages Mock
-  app.get('/api/messages', (req, res) => res.json({ messages: mock.messages }));
+  app.get('/api/messages', protect, isAdmin, (req, res) => res.json({ messages: mock.messages }));
   app.post('/api/messages', (req, res) => {
     const msg = mock.addMessage(req.body);
     res.status(201).json({ message: 'Message sent successfully.', msg });
   });
-  app.put('/api/messages/:id/read', (req, res) => {
+  app.put('/api/messages/:id/read', protect, isAdmin, (req, res) => {
     const msg = mock.updateMessageRead(req.params.id);
     if (!msg) return res.status(404).json({ message: 'Message not found' });
     res.json(msg);
   });
-  app.delete('/api/messages/:id', (req, res) => {
+  app.delete('/api/messages/:id', protect, isAdmin, (req, res) => {
     mock.deleteMessage(req.params.id);
     res.json({ message: 'Message deleted' });
   });

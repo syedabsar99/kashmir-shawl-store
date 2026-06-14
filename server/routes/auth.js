@@ -102,7 +102,7 @@ router.post('/forgot-password', async (req, res) => {
 
     // Generate 6-digit OTP
     const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Store simple hash or just the token since it's short lived
     user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 mins
@@ -122,7 +122,7 @@ router.post('/forgot-password', async (req, res) => {
           <p style="font-size: 13px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">If you didn't request a password reset, please ignore this email.</p>
         </div>
       `;
-      
+
       if (process.env.SMTP_USER && process.env.SMTP_PASS) {
         await sendEmail({ email: user.email, subject: 'Your Verification Code - Saadat Shawl House', html: htmlMsg });
         res.json({ message: 'OTP sent to your email' });
@@ -131,6 +131,7 @@ router.post('/forgot-password', async (req, res) => {
         res.json({ message: 'OTP printed to terminal.' });
       }
     } catch (err) {
+      console.error('SMTP Send Error:', err);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
       await user.save({ validateBeforeSave: false });
@@ -145,21 +146,21 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { password, token } = req.body;
-    
+
     const resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
-    
-    const user = await User.findOne({ 
-      resetPasswordToken, 
-      resetPasswordExpire: { $gt: Date.now() } 
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() }
     });
-    
+
     if (!user) return res.status(400).json({ message: 'Invalid or expired reset token' });
-    
+
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
-    
+
     res.json({ message: 'Password reset completely successful!' });
   } catch (err) {
     res.status(500).json({ message: err.message });

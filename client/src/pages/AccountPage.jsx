@@ -59,11 +59,7 @@ export default function AccountPage() {
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</p>
                 <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--crimson)', fontFamily: 'var(--font-serif)', marginTop: '4px' }}>{orders.length}</p>
               </div>
-              {user?.isAdmin && (
-                <Link to="/admin" className="btn btn-gold btn-full mt-8" id="go-admin-btn">
-                  ⚙️ Admin Panel
-                </Link>
-              )}
+
             </div>
           </div>
 
