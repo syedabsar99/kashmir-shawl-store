@@ -13,6 +13,7 @@ const useSettingsStore = create((set) => ({
   logoMain: '',
   logoSub: '',
   logoUrl: null,
+  faviconUrl: null,
   phoneNumber: '',
   email: '',
   address: '',

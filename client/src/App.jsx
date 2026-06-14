@@ -59,13 +59,12 @@ export default function App() {
     if (isInitialized) {
       // Dynamically update document favicon
       if (faviconUrl) {
-        let link = document.querySelector("link[rel~='icon']");
-        if (!link) {
-          link = document.createElement("link");
-          link.rel = "icon";
-          document.head.appendChild(link);
-        }
+        // Remove any existing favicon links (including the hardcoded SVG one)
+        document.querySelectorAll("link[rel~='icon']").forEach(el => el.remove());
+        const link = document.createElement("link");
+        link.rel = "icon";
         link.href = faviconUrl;
+        document.head.appendChild(link);
       }
 
       // Show splash screen rings until data sync, then drop the veil
