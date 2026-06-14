@@ -272,15 +272,34 @@ app.use((err, req, res, next) => {
 // Connect DB & start server
 const PORT = process.env.PORT || 5000;
 
+// Cache the MongoDB connection for Vercel serverless (avoids reconnecting on every cold start)
+let cachedConnection = null;
+
+async function connectDB() {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
+  }
+
+  cachedConnection = await mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    bufferCommands: true,
+  });
+
+  console.log('✅ MongoDB connected');
+  return cachedConnection;
+}
+
 if (process.env.MOCK_DB === 'true') {
   app.listen(PORT, () => console.log(`🚀 Mock Server running on port ${PORT}`));
 } else {
-  mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch(err => {
-      console.error('❌ MongoDB connection error:', err.message);
-      console.log('⚠️  Server running WITHOUT database connection.');
-    });
+  // Connect eagerly on startup
+  connectDB().catch(err => {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.log('⚠️  Server running WITHOUT database connection.');
+  });
 
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }
