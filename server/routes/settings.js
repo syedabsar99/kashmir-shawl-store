@@ -12,15 +12,41 @@ const protect = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 const router = express.Router();
 
+const normalizeUrl = (url, req) => {
+  if (!url) return url;
+  if (url.includes('/uploads/')) {
+    const filename = url.split('/uploads/')[1];
+    return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+  }
+  return url;
+};
+
+const normalizeSettings = (settings, req) => {
+  if (!settings) return settings;
+  const doc = settings.toObject ? settings.toObject() : JSON.parse(JSON.stringify(settings));
+  
+  if (doc.logoUrl) doc.logoUrl = normalizeUrl(doc.logoUrl, req);
+  if (doc.faviconUrl) doc.faviconUrl = normalizeUrl(doc.faviconUrl, req);
+  
+  if (doc.banners && Array.isArray(doc.banners)) {
+    doc.banners = doc.banners.map(banner => ({
+      ...banner,
+      image: normalizeUrl(banner.image, req),
+      mobileImage: normalizeUrl(banner.mobileImage, req)
+    }));
+  }
+  return doc;
+};
+
 // GET /api/settings
 router.get('/', async (req, res) => {
   try {
     if (process.env.MOCK_DB === 'true') {
       const mock = require('../mockStore');
-      return res.json(mock.storeSettings);
+      return res.json(normalizeSettings(mock.storeSettings, req));
     }
     const settings = await Settings.findOne() || await Settings.create({});
-    res.json(settings);
+    res.json(normalizeSettings(settings, req));
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -76,14 +102,14 @@ router.put('/', protect, isAdmin, async (req, res) => {
     if (process.env.MOCK_DB === 'true') {
       const mock = require('../mockStore');
       const updated = mock.updateSettings({ ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl });
-      return res.json(updated);
+      return res.json(normalizeSettings(updated, req));
     }
 
     const settings = await Settings.findOne() || new Settings();
     Object.assign(settings, { ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl });
     await settings.save();
     
-    res.json(settings);
+    res.json(normalizeSettings(settings, req));
   } catch (err) {
     console.error('🚨 SERVER ERROR (Settings):', err);
     res.status(500).json({ message: err.message });

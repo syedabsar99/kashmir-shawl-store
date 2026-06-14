@@ -12,6 +12,24 @@ const protect = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 const router = express.Router();
 
+const normalizeUrl = (url, req) => {
+  if (!url) return url;
+  if (url.includes('/uploads/')) {
+    const filename = url.split('/uploads/')[1];
+    return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+  }
+  return url;
+};
+
+const normalizeProduct = (product, req) => {
+  if (!product) return product;
+  const doc = product.toObject ? product.toObject() : JSON.parse(JSON.stringify(product));
+  if (doc.images && Array.isArray(doc.images)) {
+    doc.images = doc.images.map(img => normalizeUrl(img, req));
+  }
+  return doc;
+};
+
 // GET /api/products
 router.get('/', async (req, res) => {
   try {
@@ -43,7 +61,7 @@ router.get('/', async (req, res) => {
       Product.countDocuments(query)
     ]);
 
-    res.json({ products, total, pages: Math.ceil(total / limit), page: Number(page) });
+    res.json({ products: products.map(p => normalizeProduct(p, req)), total, pages: Math.ceil(total / limit), page: Number(page) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -55,7 +73,7 @@ router.get('/featured', async (req, res) => {
     const products = await Product.find({ isActive: true, featured: true })
       .populate('category', 'name slug')
       .limit(8);
-    res.json({ products });
+    res.json({ products: products.map(p => normalizeProduct(p, req)) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -67,7 +85,7 @@ router.get('/:slug', async (req, res) => {
     const product = await Product.findOne({ slug: req.params.slug, isActive: true })
       .populate('category', 'name slug');
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json({ product });
+    res.json({ product: normalizeProduct(product, req) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -79,7 +97,7 @@ router.post('/', protect, isAdmin, async (req, res) => {
     const { name } = req.body;
     const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const product = await Product.create({ ...req.body, slug });
-    res.status(201).json({ product });
+    res.status(201).json({ product: normalizeProduct(product, req) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -93,7 +111,7 @@ router.put('/:id', protect, isAdmin, async (req, res) => {
     }
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json({ product });
+    res.json({ product: normalizeProduct(product, req) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
