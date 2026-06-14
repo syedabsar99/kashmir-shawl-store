@@ -108,7 +108,14 @@ export default function CheckoutPage() {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      showToast(err.response?.data?.message || 'Order failed', 'error');
+      const errorMsg = err.response?.data?.message || 'Order failed';
+      showToast(errorMsg, 'error');
+      
+      if (errorMsg.includes('invalid or outdated products') || errorMsg.includes('no longer available')) {
+        setTimeout(() => {
+          window.location.reload(); // Auto-reload to let cartStore filter out invalid items
+        }, 2500);
+      }
     } finally {
       setLoading(false);
     }

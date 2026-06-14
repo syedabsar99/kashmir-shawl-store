@@ -6,9 +6,11 @@
  */
 
 const express = require('express');
+const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 const ShippingZone = require('../models/ShippingZone');
 const protect = require('../middleware/auth');
 const router = express.Router();
@@ -37,6 +39,21 @@ router.post('/shipping-rate', async (req, res) => {
 router.post('/create', protect, async (req, res) => {
   try {
     const { items, shippingAddress, paymentMethod, shippingCost, itemsTotal } = req.body;
+
+    // Validate product IDs and check existence
+    for (const item of items) {
+      if (!item.product || !mongoose.Types.ObjectId.isValid(item.product)) {
+        return res.status(400).json({
+          message: 'Your cart contains invalid or outdated products. Please clear your cart and add the items again.'
+        });
+      }
+      const dbProduct = await Product.findById(item.product);
+      if (!dbProduct) {
+        return res.status(400).json({
+          message: `Product "${item.name || 'Unknown Item'}" is no longer available in the store. Please remove it from your cart.`
+        });
+      }
+    }
 
     const totalAmount = itemsTotal + shippingCost;
 

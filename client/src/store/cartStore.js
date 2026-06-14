@@ -10,7 +10,22 @@ import { create } from 'zustand';
 const CART_KEY = 'km_cart';
 
 const loadCart = () => {
-  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
+  try {
+    const items = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    // Automatically remove invalid/mock items in production
+    if (!isLocalhost && items.length > 0) {
+      const validItems = items.filter(item => 
+        item.product && item.product._id && /^[0-9a-fA-F]{24}$/.test(item.product._id)
+      );
+      if (validItems.length !== items.length) {
+        localStorage.setItem(CART_KEY, JSON.stringify(validItems));
+        return validItems;
+      }
+    }
+    return items;
+  }
   catch { return []; }
 };
 
