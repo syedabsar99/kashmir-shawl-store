@@ -9,22 +9,31 @@
   "announcementText": "Free shipping & 30-day returns — Authentic Crafts",
   "banners": [
     {
-      "_id": "new_1775387261618",
-      "title": "New Banner TitleTest Banner 1",
-      "subtitle": "New SubtitleSub 1",
-      "description": "Banner description goes here.Desc 1",
-      "image": "https://placehold.co/1200x600/F5F5F5/9E9E9E?text=New+Banner",
+      "_id": "b1",
+      "title": "Wear the Art of Kashmir",
+      "subtitle": "Sale up to 40% off",
+      "description": "Discover handwoven shawls crafted by master artisans in the heart of the Kashmir Valley. Every thread carries centuries of tradition.",
+      "image": "https://images.unsplash.com/photo-1563161439-04f4892c67bd?w=1000&q=80",
       "btnText": "Shop Now",
       "btnLink": "/shop"
     },
     {
-      "_id": "new_1775387297759",
-      "title": "New Banner Title",
-      "subtitle": "New Subtitle",
-      "description": "Banner description goes here.",
-      "image": "https://placehold.co/1200x600/F5F5F5/9E9E9E?text=New+Banner",
-      "btnText": "Shop Now",
-      "btnLink": "/shop"
+      "_id": "b2",
+      "title": "Legendary Pashmina Collection",
+      "subtitle": "New Season Arrival",
+      "description": "Pure, authentic Pashmina fibers sourced from the high altitudes of Ladakh. Experience the warmth of tradition.",
+      "image": "https://images.unsplash.com/photo-1544441893-675973e31985?w=1000&q=80",
+      "btnText": "Explore Pashmina",
+      "btnLink": "/shop?category=mock_cat_1"
+    },
+    {
+      "_id": "b3",
+      "title": "Masterful Embroidery",
+      "subtitle": "GI-Certified Crafts",
+      "description": "Intricate Sozni and Kani stitch patterns that have adorned royalty for centuries. Own a piece of history.",
+      "image": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1000&q=80",
+      "btnText": "View Designs",
+      "btnLink": "/shop?featured=true"
     }
   ]
 }

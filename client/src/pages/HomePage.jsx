@@ -137,23 +137,23 @@ export default function HomePage() {
       <section className="hero hero--desktop">
         {/* Left text panel */}
         <div className="hero__left">
-          <div className="hero__left-track">
-            {banners.length > 0 && (
-              <div className="hero__text-slide">
+          <div className="hero__left-track" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+            {banners.map((banner, idx) => (
+              <div className="hero__text-slide" key={banner._id || idx}>
                 <div className="hero__sale-tag">
-                  <span className="tag">{banners[0].subtitle}</span>
+                  <span className="tag">{banner.subtitle}</span>
                   Kashmir Valley &mdash; Since 1952
                 </div>
-                <h1 dangerouslySetInnerHTML={{ __html: banners[0].title.replace('Kashmir', '<em>Kashmir</em>') }} />
-                <p className="hero__desc">{banners[0].description}</p>
+                <h1 dangerouslySetInnerHTML={{ __html: banner.title.replace('Kashmir', '<em>Kashmir</em>') }} />
+                <p className="hero__desc">{banner.description}</p>
                 <div className="hero__actions">
-                  <Link to={banners[0].btnLink || '/shop'} className="btn btn-primary btn-lg">
-                    {banners[0].btnText || 'Shop Now'}
+                  <Link to={banner.btnLink || '/shop'} className="btn btn-primary btn-lg">
+                    {banner.btnText || 'Shop Now'}
                   </Link>
                   <Link to="/shop?featured=true" className="btn btn-ghost btn-lg">View Featured</Link>
                 </div>
               </div>
-            )}
+            ))}
           </div>
 
           {/* Nav arrows */}
@@ -193,14 +193,14 @@ export default function HomePage() {
           {banners.length > 0 && (
             <>
               <div className="hero__sale-tag" style={{ marginBottom: '10px' }}>
-                <span className="tag">{banners[0].subtitle}</span>
+                <span className="tag">{banners[currentIndex]?.subtitle || banners[0].subtitle}</span>
                 Kashmir Valley &mdash; Since 1952
               </div>
-              <h1 dangerouslySetInnerHTML={{ __html: banners[0].title.replace('Kashmir', '<em>Kashmir</em>') }} />
-              <p className="hero__desc">{banners[0].description}</p>
+              <h1 dangerouslySetInnerHTML={{ __html: (banners[currentIndex]?.title || banners[0].title).replace('Kashmir', '<em>Kashmir</em>') }} />
+              <p className="hero__desc">{banners[currentIndex]?.description || banners[0].description}</p>
               <div className="hero__actions">
-                <Link to={banners[0].btnLink || '/shop'} className="btn btn-primary btn-lg">
-                  {banners[0].btnText || 'Shop Now'}
+                <Link to={banners[currentIndex]?.btnLink || banners[0].btnLink || '/shop'} className="btn btn-primary btn-lg">
+                  {banners[currentIndex]?.btnText || banners[0].btnText || 'Shop Now'}
                 </Link>
               </div>
             </>
