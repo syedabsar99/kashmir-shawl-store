@@ -19,6 +19,7 @@ const useSettingsStore = create((set) => ({
   address: '',
   aboutText: '',
   announcementText: '',
+  legacyImage: '',
   banners: [],
   
   initialize: async () => {

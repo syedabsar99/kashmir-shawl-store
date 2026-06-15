@@ -26,6 +26,7 @@ export default function StoreSettings() {
     address: settings.address,
     aboutText: settings.aboutText,
     announcementText: settings.announcementText,
+    legacyImage: settings.legacyImage,
     banners: settings.banners || [],
     aboutPage: settings.aboutPage || {}
   });
@@ -51,6 +52,7 @@ export default function StoreSettings() {
       address: settings.address,
       aboutText: settings.aboutText,
       announcementText: settings.announcementText,
+      legacyImage: settings.legacyImage,
       banners: settings.banners || [],
       aboutPage: settings.aboutPage || {}
     });
@@ -61,7 +63,7 @@ export default function StoreSettings() {
       btnText: settings.banners?.[0]?.btnText || 'Shop Now',
       btnLink: settings.banners?.[0]?.btnLink || '/shop'
     });
-  }, [settings.logoMain, settings.logoSub, settings.logoUrl, settings.faviconUrl, settings.phoneNumber, settings.email, settings.address, settings.aboutText, settings.announcementText, settings.banners]);
+  }, [settings.logoMain, settings.logoSub, settings.logoUrl, settings.faviconUrl, settings.phoneNumber, settings.email, settings.address, settings.aboutText, settings.announcementText, settings.legacyImage, settings.banners]);
 
   const handleBannerAdd = () => {
     const newBanner = {
@@ -161,6 +163,21 @@ export default function StoreSettings() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, aboutPage: { ...formData.aboutPage, [field]: reader.result } });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLegacyImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2000000) { 
+        toast.showToast('Legacy image should be less than 2MB', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, legacyImage: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -486,6 +503,29 @@ export default function StoreSettings() {
                   <p className="admin-muted">No banners defined. The homepage will show a default fallback.</p>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* ─── HOME LEGACY IMAGE ─── */}
+          <div style={{ marginTop: '40px', borderTop: '1px solid var(--admin-border)', paddingTop: '32px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 className="section-title-sm" style={{ marginBottom: '4px' }}>Legacy Section Image</h3>
+              <p className="admin-muted">Configure the image shown in the "Our Legacy" section on the Home Page.</p>
+            </div>
+            
+            <div className="form-grid">
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Legacy Image</label>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  {formData.legacyImage && (
+                    <img src={formData.legacyImage} alt="Legacy" style={{ height: '80px', borderRadius: '4px' }} />
+                  )}
+                  <label className="btn btn-sm btn-outline" style={{ cursor: 'pointer' }}>
+                    Upload New Image
+                    <input type="file" hidden accept="image/*" onChange={handleLegacyImageUpload} />
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>

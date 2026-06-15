@@ -73,7 +73,7 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const { banners, initialize, isInitialized } = useSettingsStore();
+  const { banners, legacyImage, initialize, isInitialized } = useSettingsStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -308,7 +308,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="heritage-image" style={{ borderRadius: '12px', overflow: 'hidden', height: '100%' }}>
-              <img src="https://images.unsplash.com/photo-1605810753066-5e58988a87fb?q=80&w=1000" alt="Kashmiri Artisan Weaving" style={{ width: '100%', height: '100%', minHeight: '500px', objectFit: 'cover' }} />
+              <img src={legacyImage || "https://images.unsplash.com/photo-1605810753066-5e58988a87fb?q=80&w=1000"} alt="Kashmiri Artisan Weaving" style={{ width: '100%', height: '100%', minHeight: '500px', objectFit: 'cover' }} />
             </div>
           </div>
         </div>

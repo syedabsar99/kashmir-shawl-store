@@ -17,6 +17,7 @@ const settingsSchema = new mongoose.Schema({
   address: { type: String, default: 'Srinagar, Jammu & Kashmir, India' },
   aboutText: { type: String, default: 'Handcrafted shawls from the valleys of Kashmir. Each piece tells a story of tradition, artistry & warmth passed through generations.' },
   announcementText: { type: String, default: 'Free shipping & 30-day returns — Authentic Crafts' },
+  legacyImage: { type: String, default: 'https://images.unsplash.com/photo-1605810753066-5e58988a87fb?q=80&w=1000' },
   banners: [
     {
       image: { type: String, default: 'https://images.unsplash.com/photo-1563161439-04f4892c67bd?w=1000&q=80' },

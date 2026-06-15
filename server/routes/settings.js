@@ -58,6 +58,7 @@ router.put('/', protect, isAdmin, async (req, res) => {
     const { logoUrlMask, ...otherData } = req.body;
     let finalLogoUrl = otherData.logoUrl;
     let finalFaviconUrl = otherData.faviconUrl;
+    let finalLegacyImage = otherData.legacyImage;
 
     // Allowed image types (allowlist)
     const ALLOWED_IMAGE_TYPES = ['jpeg', 'jpg', 'png', 'webp', 'gif', 'svg+xml'];
@@ -99,6 +100,12 @@ router.put('/', protect, isAdmin, async (req, res) => {
       if (cloudUrl) finalFaviconUrl = cloudUrl;
     }
 
+    // Handle new Legacy Image upload
+    if (finalLegacyImage && finalLegacyImage.startsWith('data:image')) {
+      const cloudUrl = await uploadBase64ToCloudinary(finalLegacyImage, 'legacy');
+      if (cloudUrl) finalLegacyImage = cloudUrl;
+    }
+
     // Handle banners uploads
     if (otherData.banners && Array.isArray(otherData.banners)) {
       for (const banner of otherData.banners) {
@@ -115,12 +122,12 @@ router.put('/', protect, isAdmin, async (req, res) => {
 
     if (process.env.MOCK_DB === 'true') {
       const mock = require('../mockStore');
-      const updated = mock.updateSettings({ ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl });
+      const updated = mock.updateSettings({ ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl, legacyImage: finalLegacyImage });
       return res.json(normalizeSettings(updated, req));
     }
 
     const settings = await Settings.findOne() || new Settings();
-    Object.assign(settings, { ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl });
+    Object.assign(settings, { ...otherData, logoUrl: finalLogoUrl, faviconUrl: finalFaviconUrl, legacyImage: finalLegacyImage });
     await settings.save();
     
     res.json(normalizeSettings(settings, req));
