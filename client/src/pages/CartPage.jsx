@@ -36,7 +36,7 @@ export default function CartPage() {
       </div>
 
       <div className="container section">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '40px', alignItems: 'start' }}>
+        <div className="cart-layout">
 
           {/* ITEMS */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -103,7 +103,7 @@ export default function CartPage() {
           </div>
 
           {/* ORDER SUMMARY */}
-          <div className="card" style={{ padding: '28px', position: 'sticky', top: '88px' }}>
+          <div className="card cart-summary">
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '20px' }}>Order Summary</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
               <div className="flex-between" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
