@@ -129,7 +129,7 @@ export default function CheckoutPage() {
 
       <div className="container section">
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '40px', alignItems: 'start' }}>
+          <div className="cart-layout">
 
             {/* LEFT: Shipping + Payment */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* RIGHT: Order Summary */}
-            <div className="card" style={{ padding: '28px', position: 'sticky', top: '88px' }}>
+            <div className="card cart-summary">
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '20px' }}>Order Summary</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                 {items.map(item => (

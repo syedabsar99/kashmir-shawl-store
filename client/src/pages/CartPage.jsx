@@ -39,28 +39,24 @@ export default function CartPage() {
         <div className="cart-layout">
 
           {/* ITEMS */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="cart-items-col">
             {items.map(item => (
-              <div
-                key={item.key}
-                className="card"
-                style={{ display: 'flex', gap: '20px', padding: '20px' }}
-              >
+              <div key={item.key} className="card cart-item">
                 <Link to={`/product/${item.product.slug}`}>
                   <img
                     src={item.product.images?.[0] || 'https://placehold.co/100x130/3D2B1F/C4972A?text=Shawl'}
                     alt={item.product.name}
-                    style={{ width: '100px', height: '130px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
+                    className="cart-item__image"
                   />
                 </Link>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div className="cart-item__body">
+                  <div className="cart-item__top">
                     <div>
-                      <Link to={`/product/${item.product.slug}`} style={{ fontFamily: 'var(--font-serif)', fontSize: '17px', color: 'var(--text-primary)' }}>
+                      <Link to={`/product/${item.product.slug}`} className="cart-item__name">
                         {item.product.name}
                       </Link>
                       {(item.variant.color || item.variant.size || item.variant.material) && (
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                        <p className="cart-item__variant">
                           {[item.variant.color, item.variant.size, item.variant.material].filter(Boolean).join(' · ')}
                         </p>
                       )}
@@ -68,32 +64,32 @@ export default function CartPage() {
                     <button
                       onClick={() => removeItem(item.key)}
                       id={`remove-${item.key}`}
-                      style={{ color: 'var(--text-muted)', fontSize: '20px', lineHeight: 1, cursor: 'pointer', background: 'none', border: 'none' }}
+                      className="cart-item__remove"
                       aria-label="Remove item"
                     >
                       ×
                     </button>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+                  <div className="cart-item__bottom">
+                    <div className="cart-qty">
                       <button
                         onClick={() => item.quantity === 1 ? removeItem(item.key) : updateQty(item.key, item.quantity - 1)}
                         id={`dec-${item.key}`}
-                        style={{ width: '32px', height: '36px', background: 'none', cursor: 'pointer', fontSize: '16px', borderRight: '1px solid var(--border)' }}
+                        className="cart-qty__btn cart-qty__btn--dec"
                       >
                         −
                       </button>
-                      <span style={{ width: '36px', textAlign: 'center', fontSize: '14px', fontWeight: 600 }}>{item.quantity}</span>
+                      <span className="cart-qty__val">{item.quantity}</span>
                       <button
                         onClick={() => updateQty(item.key, item.quantity + 1)}
                         id={`inc-${item.key}`}
-                        style={{ width: '32px', height: '36px', background: 'none', cursor: 'pointer', fontSize: '16px', borderLeft: '1px solid var(--border)' }}
+                        className="cart-qty__btn cart-qty__btn--inc"
                       >
                         +
                       </button>
                     </div>
-                    <span style={{ fontWeight: 700, fontSize: '18px', color: 'var(--crimson)' }}>
+                    <span className="cart-item__price">
                       {fmt(item.price * item.quantity)}
                     </span>
                   </div>
@@ -104,21 +100,21 @@ export default function CartPage() {
 
           {/* ORDER SUMMARY */}
           <div className="card cart-summary">
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '20px' }}>Order Summary</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-              <div className="flex-between" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+            <h3 className="cart-summary__title">Order Summary</h3>
+            <div className="cart-summary__rows">
+              <div className="flex-between cart-summary__row">
                 <span>Subtotal ({items.reduce((s,i)=>s+i.quantity,0)} items)</span>
                 <span>{fmt(total)}</span>
               </div>
-              <div className="flex-between" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+              <div className="flex-between cart-summary__row">
                 <span>Shipping</span>
-                <span style={{ color: 'var(--emerald)' }}>Calculated at checkout</span>
+                <span className="emerald">Calculated at checkout</span>
               </div>
             </div>
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginBottom: '24px' }}>
+            <div className="cart-summary__divider">
               <div className="flex-between">
-                <span style={{ fontWeight: 700, fontSize: '16px' }}>Estimated Total</span>
-                <span style={{ fontWeight: 700, fontSize: '22px', color: 'var(--crimson)' }}>{fmt(total)}</span>
+                <span className="cart-summary__total-label">Estimated Total</span>
+                <span className="cart-summary__total-value">{fmt(total)}</span>
               </div>
             </div>
             <Link to="/checkout" className="btn btn-primary btn-full btn-lg" id="proceed-checkout-btn">
