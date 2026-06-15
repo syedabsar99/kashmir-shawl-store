@@ -5,10 +5,45 @@
  * Notes: This code is proprietary and developed from scratch.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import useSettingsStore from '../../store/settingsStore';
 import useToast from '../../hooks/useToast';
 import AdminLayout from './AdminLayout';
+
+/**
+ * Compress an image file using canvas before converting to base64.
+ * Resizes to maxDim and compresses to JPEG at given quality.
+ * Returns a base64 data URL.
+ */
+const compressImage = (file, maxDim = 1200, quality = 0.75) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      // Scale down if larger than maxDim
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      // Use webp if supported, fallback to jpeg
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image for compression'));
+    };
+    img.src = url;
+  });
+};
 
 export default function StoreSettings() {
   const settings = useSettingsStore();
@@ -90,60 +125,56 @@ export default function StoreSettings() {
     });
   };
 
-  const handleBannerImageUpload = (id, e) => {
+  const handleBannerImageUpload = async (id, e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 1000000) {
-        toast.showToast('Banner image should be less than 1MB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => handleBannerChange(id, 'image', reader.result);
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 5000000) {
+      toast.showToast('Banner image should be less than 5MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 1400, 0.78);
+      handleBannerChange(id, 'image', compressed);
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
-  const handleBannerMobileImageUpload = (id, e) => {
+  const handleBannerMobileImageUpload = async (id, e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 1000000) {
-        toast.showToast('Mobile banner image should be less than 1MB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => handleBannerChange(id, 'mobileImage', reader.result);
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 5000000) {
+      toast.showToast('Mobile banner should be less than 5MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 900, 0.78);
+      handleBannerChange(id, 'mobileImage', compressed);
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
-  const handleLogoUpload = (e) => {
+  const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 500000) { // 500KB limit for base64 storage
-        toast.showToast('Logo image should be less than 500KB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, logoUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 2000000) {
+      toast.showToast('Logo should be less than 2MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 400, 0.85);
+      setFormData({ ...formData, logoUrl: compressed });
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
-  const handleFaviconUpload = (e) => {
+  const handleFaviconUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 200000) { // 200KB limit for favicon
-        toast.showToast('Favicon should be less than 200KB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, faviconUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 1000000) {
+      toast.showToast('Favicon should be less than 1MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 128, 0.9);
+      setFormData({ ...formData, faviconUrl: compressed });
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
   const handleAboutChange = (e) => {
@@ -153,34 +184,30 @@ export default function StoreSettings() {
     });
   };
 
-  const handleAboutImageUpload = (e, field) => {
+  const handleAboutImageUpload = async (e, field) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2000000) { 
-        toast.showToast('Image should be less than 2MB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, aboutPage: { ...formData.aboutPage, [field]: reader.result } });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 5000000) {
+      toast.showToast('Image should be less than 5MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 1200, 0.78);
+      setFormData({ ...formData, aboutPage: { ...formData.aboutPage, [field]: compressed } });
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
-  const handleLegacyImageUpload = (e) => {
+  const handleLegacyImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2000000) { 
-        toast.showToast('Legacy image should be less than 2MB', 'error');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, legacyImage: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 5000000) {
+      toast.showToast('Legacy image should be less than 5MB', 'error');
+      return;
     }
+    try {
+      const compressed = await compressImage(file, 1000, 0.78);
+      setFormData({ ...formData, legacyImage: compressed });
+    } catch { toast.showToast('Failed to process image', 'error'); }
   };
 
   const handleLogoRemove = () => {
