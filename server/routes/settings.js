@@ -88,37 +88,39 @@ router.put('/', protect, isAdmin, async (req, res) => {
       return result.secure_url;
     };
 
-    // Handle new Logo upload
-    if (finalLogoUrl && finalLogoUrl.startsWith('data:image')) {
-      const cloudUrl = await uploadBase64ToCloudinary(finalLogoUrl, 'logos');
-      if (cloudUrl) finalLogoUrl = cloudUrl;
-    }
+    // Create an array to hold all upload promises
+    const uploadTasks = [];
 
-    // Handle new Favicon upload
-    if (finalFaviconUrl && finalFaviconUrl.startsWith('data:image')) {
-      const cloudUrl = await uploadBase64ToCloudinary(finalFaviconUrl, 'favicons');
-      if (cloudUrl) finalFaviconUrl = cloudUrl;
-    }
+    // Helper to add an upload task and assign the result back
+    const queueUpload = (base64Data, folder, callback) => {
+      if (base64Data && base64Data.startsWith('data:image')) {
+        const task = uploadBase64ToCloudinary(base64Data, folder).then(cloudUrl => {
+          if (cloudUrl) callback(cloudUrl);
+        });
+        uploadTasks.push(task);
+      }
+    };
 
-    // Handle new Legacy Image upload
-    if (finalLegacyImage && finalLegacyImage.startsWith('data:image')) {
-      const cloudUrl = await uploadBase64ToCloudinary(finalLegacyImage, 'legacy');
-      if (cloudUrl) finalLegacyImage = cloudUrl;
+    queueUpload(finalLogoUrl, 'logos', url => finalLogoUrl = url);
+    queueUpload(finalFaviconUrl, 'favicons', url => finalFaviconUrl = url);
+    queueUpload(finalLegacyImage, 'legacy', url => finalLegacyImage = url);
+
+    // About Page Images
+    if (otherData.aboutPage) {
+      queueUpload(otherData.aboutPage.heroImage, 'about', url => otherData.aboutPage.heroImage = url);
+      queueUpload(otherData.aboutPage.chapterImage, 'about', url => otherData.aboutPage.chapterImage = url);
     }
 
     // Handle banners uploads
     if (otherData.banners && Array.isArray(otherData.banners)) {
       for (const banner of otherData.banners) {
-        if (banner.image && banner.image.startsWith('data:image')) {
-          const cloudUrl = await uploadBase64ToCloudinary(banner.image, 'banners');
-          if (cloudUrl) banner.image = cloudUrl;
-        }
-        if (banner.mobileImage && banner.mobileImage.startsWith('data:image')) {
-          const cloudUrl = await uploadBase64ToCloudinary(banner.mobileImage, 'banners');
-          if (cloudUrl) banner.mobileImage = cloudUrl;
-        }
+        queueUpload(banner.image, 'banners', url => banner.image = url);
+        queueUpload(banner.mobileImage, 'banners', url => banner.mobileImage = url);
       }
     }
+
+    // Wait for all uploads to complete concurrently
+    await Promise.all(uploadTasks);
 
     if (process.env.MOCK_DB === 'true') {
       const mock = require('../mockStore');
