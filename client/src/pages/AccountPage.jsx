@@ -43,29 +43,28 @@ export default function AccountPage() {
       </div>
 
       <div className="container section">
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '40px', alignItems: 'start' }}>
+        <div className="account-layout">
 
           {/* Sidebar */}
-          <div className="card" style={{ padding: '28px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--crimson), var(--gold))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: '28px', color: 'white', fontFamily: 'var(--font-serif)', fontWeight: 700 }}>
+          <div className="card account-sidebar">
+            <div className="account-sidebar__profile">
+              <div className="account-sidebar__avatar">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px' }}>{user?.name}</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>{user?.email}</p>
+              <h3 className="account-sidebar__name">{user?.name}</h3>
+              <p className="account-sidebar__email">{user?.email}</p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ padding: '12px', background: 'rgba(139,26,26,0.05)', borderRadius: '8px', border: '1px solid rgba(139,26,26,0.1)' }}>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</p>
-                <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--crimson)', fontFamily: 'var(--font-serif)', marginTop: '4px' }}>{orders.length}</p>
+            <div className="account-sidebar__stats">
+              <div className="account-sidebar__stat-card">
+                <p className="account-sidebar__stat-label">Total Orders</p>
+                <p className="account-sidebar__stat-value">{orders.length}</p>
               </div>
-
             </div>
           </div>
 
           {/* Orders */}
           <div>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', marginBottom: '24px' }}>Order History</h2>
+            <h2 className="account-orders__title">Order History</h2>
             {loading ? <Spinner /> : orders.length === 0 ? (
               <div className="empty-state">
                 <div className="icon">📦</div>
@@ -74,17 +73,17 @@ export default function AccountPage() {
                 <Link to="/shop" className="btn btn-primary mt-16" id="account-shop-btn">Shop Now</Link>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="account-orders-list">
                 {orders.map(order => (
-                  <div key={order._id} className="card" style={{ padding: '20px' }}>
-                    <div className="flex-between mb-16">
+                  <div key={order._id} className="card account-order-card">
+                    <div className="flex-between mb-16 account-order-card__header">
                       <div>
-                        <p style={{ fontWeight: 700, fontSize: '15px' }}>{order.orderNumber}</p>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        <p className="account-order-card__number">{order.orderNumber}</p>
+                        <p className="account-order-card__date">
                           {new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </p>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div className="account-order-card__badges">
                         <span className={`badge ${order.paymentMethod === 'cod' ? 'badge-cod' : 'badge-paid'}`}>
                           {order.paymentMethod === 'cod' ? 'COD' : 'Online'}
                         </span>
@@ -94,27 +93,27 @@ export default function AccountPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    <div className="account-order-card__images">
                       {order.items.slice(0, 3).map((item, i) => (
                         <img
                           key={i}
                           src={item.image || 'https://placehold.co/60x75/3D2B1F/C4972A?text=Shawl'}
                           alt={item.name}
-                          style={{ width: '60px', height: '75px', objectFit: 'cover', borderRadius: '6px' }}
+                          className="account-order-card__thumb"
                         />
                       ))}
                       {order.items.length > 3 && (
-                        <div style={{ width: '60px', height: '75px', borderRadius: '6px', background: 'var(--cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>
+                        <div className="account-order-card__more">
                           +{order.items.length - 3}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-between">
-                      <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                      <span className="account-order-card__count">
                         {order.items.reduce((s, i) => s + i.quantity, 0)} item{order.items.reduce((s, i) => s + i.quantity, 0) !== 1 ? 's' : ''}
                       </span>
-                      <span style={{ fontWeight: 700, fontSize: '16px', color: 'var(--crimson)' }}>
+                      <span className="account-order-card__total">
                         {fmt(order.totalAmount)}
                       </span>
                     </div>
