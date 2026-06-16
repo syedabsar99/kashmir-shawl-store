@@ -62,12 +62,12 @@ export default function ShopPage() {
       </div>
 
       <div className="container section">
-        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '40px', alignItems: 'start' }}>
+        <div className="shop-layout">
 
           {/* SIDEBAR */}
-          <aside>
-            <div className="card" style={{ padding: '24px' }}>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)' }}>
+          <aside className="shop-sidebar">
+            <div className="card shop-sidebar__card">
+              <h3 className="shop-filter-title">
                 Filters
               </h3>
 
@@ -87,7 +87,7 @@ export default function ShopPage() {
               {/* Categories */}
               <div className="mb-24">
                 <p className="form-label mb-16">Category</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="shop-category-list">
                   <button
                     id="cat-all"
                     className={`btn btn-sm ${!category ? 'btn-primary' : 'btn-ghost'}`}
@@ -131,7 +131,7 @@ export default function ShopPage() {
           {/* PRODUCT AREA */}
           <div>
             <div className="flex-between mb-24">
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+              <p className="shop-results-count">
                 {total} {termPlural} found
               </p>
             </div>
