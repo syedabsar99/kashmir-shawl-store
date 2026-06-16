@@ -132,14 +132,14 @@ export default function CheckoutPage() {
           <div className="cart-layout">
 
             {/* LEFT: Shipping + Payment */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            <div className="checkout-left">
 
               {/* Shipping Address */}
-              <div className="card" style={{ padding: '28px' }}>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '24px' }}>
+              <div className="card checkout-card">
+                <h3 className="checkout-card__title">
                   📦 Shipping Address
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="checkout-form-grid">
                   {[
                     { label: 'Full Name', name: 'name', placeholder: 'Your full name' },
                     { label: 'Phone', name: 'phone', placeholder: '10-digit mobile number' },
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
                     { label: 'State', name: 'state', placeholder: 'State' },
                     { label: 'Pincode', name: 'pincode', placeholder: '6-digit pincode' },
                   ].map(({ label, name, placeholder, full }) => (
-                    <div key={name} className="form-group" style={full ? { gridColumn: '1/-1' } : {}}>
+                    <div key={name} className={`form-group${full ? ' checkout-form-grid--full' : ''}`}>
                       <label className="form-label" htmlFor={`addr-${name}`}>{label}</label>
                       <input
                         id={`addr-${name}`}
@@ -175,11 +175,11 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Method */}
-              <div className="card" style={{ padding: '28px' }}>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '24px' }}>
+              <div className="card checkout-card">
+                <h3 className="checkout-card__title">
                   💳 Payment Method
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="checkout-payment-options">
                   {[
                     { value: 'razorpay', label: '💳 Pay Online (Razorpay)', desc: 'Cards, UPI, Net Banking, Wallets' },
                     { value: 'cod', label: '💵 Cash on Delivery', desc: 'Pay when your order arrives' }
@@ -187,12 +187,7 @@ export default function CheckoutPage() {
                     <label
                       key={opt.value}
                       id={`pay-${opt.value}`}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px',
-                        border: `2px solid ${paymentMethod === opt.value ? 'var(--crimson)' : 'var(--border)'}`,
-                        borderRadius: '10px', cursor: 'pointer', transition: 'border-color 0.2s',
-                        background: paymentMethod === opt.value ? 'rgba(139,26,26,0.03)' : 'white'
-                      }}
+                      className={`checkout-payment-option${paymentMethod === opt.value ? ' checkout-payment-option--active' : ''}`}
                     >
                       <input
                         type="radio"
@@ -203,8 +198,8 @@ export default function CheckoutPage() {
                         style={{ accentColor: 'var(--crimson)' }}
                       />
                       <div>
-                        <p style={{ fontWeight: 600, fontSize: '15px' }}>{opt.label}</p>
-                        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{opt.desc}</p>
+                        <p className="checkout-payment-option__label">{opt.label}</p>
+                        <p className="checkout-payment-option__desc">{opt.desc}</p>
                       </div>
                     </label>
                   ))}
@@ -214,28 +209,28 @@ export default function CheckoutPage() {
 
             {/* RIGHT: Order Summary */}
             <div className="card cart-summary">
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '20px' }}>Order Summary</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+              <h3 className="cart-summary__title">Order Summary</h3>
+              <div className="checkout-summary-items">
                 {items.map(item => (
-                  <div key={item.key} className="flex-between" style={{ fontSize: '14px' }}>
-                    <span style={{ color: 'var(--text-secondary)', maxWidth: '180px' }}>
+                  <div key={item.key} className="flex-between checkout-summary-row">
+                    <span className="checkout-summary-row__name">
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span style={{ fontWeight: 600 }}>{fmt(item.price * item.quantity)}</span>
+                    <span className="checkout-summary-row__price">{fmt(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div className="flex-between" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+              <div className="checkout-summary-totals">
+                <div className="flex-between checkout-summary-row">
                   <span>Subtotal</span><span>{fmt(subtotal)}</span>
                 </div>
-                <div className="flex-between" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                <div className="flex-between checkout-summary-row">
                   <span>Shipping</span>
                   <span>{shippingCost !== null ? (shippingCost === 0 ? '🎉 Free' : fmt(shippingCost)) : '—'}</span>
                 </div>
-                <div className="flex-between" style={{ fontWeight: 700, fontSize: '18px', borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '4px' }}>
+                <div className="flex-between checkout-summary-total">
                   <span>Total</span>
-                  <span style={{ color: 'var(--crimson)' }}>{shippingCost !== null ? fmt(subtotal + shippingCost) : fmt(subtotal)}</span>
+                  <span className="checkout-summary-total__value">{shippingCost !== null ? fmt(subtotal + shippingCost) : fmt(subtotal)}</span>
                 </div>
               </div>
 
