@@ -1,142 +1,121 @@
-# Saadat Shawl House 🧣
+# Saadat Kashmir Shawl Store — Full-Stack E-Commerce Platform
 
-A full-stack, premium Kashmiri shawl e-commerce platform built with React, Node.js/Express, and MongoDB.
+A production-ready, full-stack luxury e-commerce platform dedicated to authentic handwoven Kashmiri Pashmina, Woolen, and Silk shawls, built with React 18, Vite, Node.js, Express, MongoDB, and custom responsive styling featuring dynamic catalogs, shopping carts, wishlist management, order workflows, and a full administrative dashboard.
 
----
-
-## ✨ Features
-
-- **Customer Storefront** — Browse, filter, and purchase authentic Kashmiri shawls
-- **User Authentication** — JWT-based registration & login with protected routes
-- **Product Catalog** — Categories, search/filter, featured products, product detail pages
-- **Shopping Cart** — Persistent cart via Zustand state management
-- **Checkout** — Zone-based shipping rates, Razorpay online payment + Cash on Delivery
-- **Order Tracking** — Order history and status updates on the Account page
-- **Admin Panel** — Dark-themed dashboard for managing products, orders, categories, and shipping zones
-- **Image Uploads** — Cloudinary integration for product images
-- **Responsive Design** — Lume-inspired minimalist layout with Kashmiri crimson & gold accents
+[![Live Demo](https://img.shields.io/badge/Demo-Live_Store-06b6d4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://kashmir-shawl-store.vercel.app)
+[![React](https://img.shields.io/badge/React_18-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](client/)
+[![Node & Express](https://img.shields.io/badge/Backend-Node.js_%26_Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](server/)
+[![Database](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](server/models/)
+[![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🗂️ Project Structure
+## Preview
 
-```
-kashur-mart/
-├── client/                  # Vite + React frontend
-│   └── src/
-│       ├── api/             # Axios API client
-│       ├── components/      # Navbar, Footer, ProductCard, etc.
-│       ├── hooks/           # useToast
-│       ├── pages/           # Customer pages
-│       │   └── admin/       # Admin panel pages
-│       └── store/           # Zustand stores (auth, cart)
-├── server/                  # Node.js + Express backend
-│   ├── middleware/          # auth.js, isAdmin.js
-│   ├── models/              # Mongoose models
-│   ├── routes/              # API route handlers
-│   └── index.js             # Express entry point
-└── vercel.json              # Vercel deployment config
+![Saadat Kashmir Shawl Store Preview](preview.jpg)
+
+> **Live Store:** [kashmir-shawl-store.vercel.app](https://kashmir-shawl-store.vercel.app)
+
+---
+
+## Overview
+
+Architected and developed by **Syed Noor Ul Absar**, this application honors the rich handicraft heritage of the Kashmir Valley through a world-class digital storefront. It connects artisans directly with discerning global patrons seeking genuine Pashmina, Kani, and Tilla embroidered shawls.
+
+The architecture cleanly decouples an optimized React SPA client from a robust Node.js REST API with authenticated JWT authorization, persistent MongoDB schemas, Razorpay checkout hooks, and an integrated content management system (CMS) for inventory administration.
+
+---
+
+## Key Features
+
+- **Product Catalog & Filtering** — Dynamic catalog filtering by category (Pashmina, Cashmere, Silk, Woolen), price range, availability, and search queries.
+- **Interactive Product Detail Pages** — Multi-angle zoomable image galleries, fabric specifications, artisan stories, and stock status indicators.
+- **Client-Side State Management** — Reactive shopping cart and persistent wishlist powered by custom Zustand/browser storage stores.
+- **Checkout & Payment Integration** — Multi-step order checkout flow with customer shipping zone calculators and Razorpay payment gateway integration.
+- **Admin Management Suite** — Password-protected administrative console for product creation/editing, inventory tracking, order status updates, and banner announcements.
+- **SEO & Social Sharing Metadata** — Tailored Open Graph cards and JSON-LD schema markup for enhanced search engine visibility.
+- **Mobile-First Responsive Design** — Fluid layouts optimized with custom CSS media queries ensuring an exquisite shopping experience on all devices (`<=480px`).
+
+---
+
+## Tech Stack
+
+| Layer | Technologies | Details |
+| :--- | :--- | :--- |
+| **Frontend Client** | React 18, Vite | Component-driven UI, React Router v6, custom hooks, Axios |
+| **Styling** | Vanilla CSS3 (Lume Theme) | Custom CSS design tokens, wood-inspired palette, glassmorphism, responsive grid |
+| **Backend API** | Node.js, Express.js | Modular RESTful routes, JWT authentication, CORS, rate limiting |
+| **Database** | MongoDB & Mongoose | Relational schemas for Products, Categories, Users, Orders, and Settings |
+| **Payments & Assets** | Razorpay & Multer | Secure online payments and local media storage |
+| **Hosting** | Vercel (Client) & Render (API) | Production cloud environments with SSL |
+
+---
+
+## Project Structure
+
+```text
+kashmir-shawl-store/
+├── client/                    # React 18 + Vite frontend client
+│   ├── public/                # Static assets, SVG icons, and favicons
+│   ├── src/
+│   │   ├── api/               # Axios instance and API service calls
+│   │   ├── components/        # Navbar, Footer, ProductCard, Preloader, ProtectedRoute
+│   │   ├── pages/             # Home, Shop, ProductDetail, Cart, Checkout, Account, Admin
+│   │   ├── store/             # Auth, Cart, Wishlist, and Settings stores
+│   │   ├── App.jsx            # Application routing configuration
+│   │   └── index.css          # Core design tokens and responsive media queries
+│   └── package.json
+├── server/                    # Node.js + Express backend service
+│   ├── middleware/            # JWT authentication & admin authorization guards
+│   ├── models/                # Mongoose schemas (Product, Order, User, Category, Settings)
+│   ├── routes/                # REST endpoints for products, orders, auth, and admin
+│   ├── uploads/               # Product photography and banner storage
+│   ├── index.js               # Express application entrypoint and DB connection
+│   └── package.json
+├── LICENSE                    # MIT open-source license
+├── preview.jpg                # High-resolution store showcase photograph
+└── README.md                  # Comprehensive repository documentation
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### Prerequisites
-
-- Node.js 18+
-- MongoDB Atlas account
-- Cloudinary account (for image uploads)
-- Razorpay account (for payments)
-
-### 1. Clone & Install
-
+### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/kashur-mart.git
-cd kashur-mart
-
-# Install server dependencies
-cd server && npm install
-
-# Install client dependencies
-cd ../client && npm install
+git clone https://github.com/syedabsar99/kashmir-shawl-store.git
+cd kashmir-shawl-store
 ```
 
-### 2. Configure Environment
-
-Copy the example env file and fill in your credentials:
-
+### 2. Setup Server
 ```bash
-cp server/.env.example server/.env
-```
-
-| Variable | Description |
-|---|---|
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `JWT_SECRET` | Secret key for JWT signing (make it long & random) |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
-| `RAZORPAY_KEY_ID` | Razorpay test/live key ID |
-| `RAZORPAY_KEY_SECRET` | Razorpay secret key |
-| `CLIENT_URL` | Frontend URL (e.g. `http://localhost:5173`) |
-| `PORT` | Server port (default: `5000`) |
-
-### 3. Run Locally
-
-```bash
-# Terminal 1 — Start backend
 cd server
-npm run dev
-
-# Terminal 2 — Start frontend
-cd client
-npm run dev
+npm install
+cp .env.example .env   # configure PORT, MONGO_URI, and JWT_SECRET
+npm start
 ```
 
-Frontend → http://localhost:5173  
-Backend API → http://localhost:5000/api
-
----
-
-## 🔑 Creating an Admin User
-
-After starting the server, register a user normally, then update their record in MongoDB:
-
-```js
-// In MongoDB Atlas or mongosh:
-db.users.updateOne({ email: "your@email.com" }, { $set: { isAdmin: true } })
+### 3. Setup Client
+```bash
+cd ../client
+npm install
+npm run dev
 ```
 
 ---
 
-## 📦 Tech Stack
+## Author & Contact
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, React Router v7 |
-| State | Zustand |
-| Styling | Vanilla CSS (Lume-inspired design system) |
-| Backend | Node.js, Express |
-| Database | MongoDB with Mongoose |
-| Auth | JWT + bcryptjs |
-| Images | Cloudinary |
-| Payments | Razorpay (online) + Cash on Delivery |
-| Deployment | Vercel (serverless) |
+**Syed Noor Ul Absar**
+- **Role**: Frontend & Full-Stack Web Developer
+- **Education**: Bachelor of Computer Applications (BCA), Chandigarh University (8.35 SGPA)
+- **Portfolio**: [syedabsar99.github.io/portfolio](https://syedabsar99.github.io/portfolio/)
+- **GitHub**: [@syedabsar99](https://github.com/syedabsar99)
+- **LinkedIn**: [linkedin.com/in/syed-noor-ul-absar-7b6408365](https://www.linkedin.com/in/syed-noor-ul-absar-7b6408365/)
+- **Email**: syedabsar99@gmail.com
 
 ---
 
-## 🌐 Deployment (Vercel)
+## License
 
-The project is configured for Vercel monorepo deployment via `vercel.json`.
-
-**Environment Variables** to set in Vercel dashboard (same as `.env` above):
-- `MONGODB_URI`, `JWT_SECRET`, `CLOUDINARY_*`, `RAZORPAY_*`, `CLIENT_URL`
-
-The `vercel.json` routes all `/api/*` requests to the Express server and all other routes to the React SPA.
-
----
-
-## 📄 License
-
-MIT © Saadat Shawl House — Made with ❤️ from Kashmir
+This project is licensed under the [MIT License](LICENSE) — feel free to use, modify, and distribute for educational or personal use.
